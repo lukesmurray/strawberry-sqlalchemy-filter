@@ -1,21 +1,21 @@
-"""Add data
+"""add data
 
-Revision ID: bea5e58f3328
-Revises: 9bc8667ab6a6
-Create Date: 2021-09-10 16:00:20.280277
+Revision ID: 025144069685
+Revises: a0c8f752df9b
+Create Date: 2021-10-05 11:32:17.314955
 
 """
 import json
 from pathlib import Path
 
 from alembic import op
-from main.models import Director, Movie
+from main.sqlmodels import Director, Movie
 from sqlalchemy import orm, select
 from sqlalchemy.exc import NoResultFound
 
 # revision identifiers, used by Alembic.
-revision = "bea5e58f3328"
-down_revision = "9bc8667ab6a6"
+revision = "025144069685"
+down_revision = "a0c8f752df9b"
 branch_labels = None
 depends_on = None
 

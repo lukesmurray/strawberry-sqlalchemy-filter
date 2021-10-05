@@ -1,6 +1,7 @@
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
+from sqlmodel import SQLModel
 
 from alembic import context
 
@@ -18,9 +19,9 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata # noqa
 # target_metadata = None # noqa
 
-from main.database import Base  # noqa
+from main.sqlmodels import Director, Movie  # noqa
 
-target_metadata = Base.metadata
+target_metadata = SQLModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

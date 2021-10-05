@@ -1,16 +1,13 @@
 import strawberry
+from main.sqlmodels import Director as DirectorModel
 
-from main.models import Director as DirectorModel
 
-
-@strawberry.type
+@strawberry.experimental.pydantic.type(
+    model=DirectorModel,
+    fields=[
+        "id",
+        "name",
+    ],
+)
 class Director:
-    id: int
-    name: str
-
-    @classmethod
-    def from_instance(cls, instance: DirectorModel):
-        return cls(
-            id=instance.id,
-            name=instance.name,
-        )
+    pass
