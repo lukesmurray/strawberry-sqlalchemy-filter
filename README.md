@@ -91,3 +91,48 @@ query AllTopRatedMovies {
   - [Another Example](https://github.com/ThirVondukr/manga-backend)
 - [Strawberry Integration with Sql Model](https://github.com/strawberry-graphql/strawberry/discussions/1183#discussioncomment-1249751)
 - [graphene sqlalchemy filter](https://github.com/art1415926535/graphene-sqlalchemy-filter)
+
+## Examples
+
+```graphql
+{
+  allUsers(
+    filters: {
+      isActive: true
+      or: [{ isAdmin: true }, { usernameIn: ["moderator", "cool guy"] }]
+    }
+  ) {
+    edges {
+      node {
+        id
+        username
+      }
+    }
+  }
+}
+```
+
+```graphql
+{
+  allUsers(filters: { isActive: true }) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+  allGroups {
+    edges {
+      node {
+        users(filters: { isActive: true }) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```

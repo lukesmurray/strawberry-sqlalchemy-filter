@@ -1,7 +1,6 @@
+from api.example_schema import schema
 from fastapi import FastAPI
 from strawberry.asgi import GraphQL
-
-from api.schema import schema
 
 graphql_app = GraphQL(schema)
 
