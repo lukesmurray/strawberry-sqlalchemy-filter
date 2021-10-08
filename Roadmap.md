@@ -46,7 +46,7 @@ The schema is really long but it is a good example of where we could go in the l
   - [x] schema generation
   - [ ] sqlalchemy integration
 - [ ] implement distinct clauses
-  - [ ] schema generation
+  - [x] schema generation
   - [ ] sqlalchemy integration
 - [ ] implement nested single item queries from the many to the one side of a relationship
   - [ ] schema generation

@@ -1,4 +1,5 @@
 import dataclasses
+import enum
 import typing as t
 from enum import Enum
 from types import SimpleNamespace
@@ -47,12 +48,12 @@ _SCALAR_BOOL_OP_MAP: dict[type, set[str]] = {
 
 @strawberry.enum
 class OrderByEnum(Enum):
-    ASC = "asc"
-    ASC_NULLS_FIRST = "asc_nulls_first"
-    ASC_NULLS_LAST = "asc_nulls_last"
-    DESC = "desc"
-    DESC_NULLS_FIRST = "desc_nulls_first"
-    DESC_NULLS_LAST = "desc_nulls_last"
+    asc = "asc"
+    asc_nulls_first = "asc_nulls_first"
+    asc_nulls_last = "asc_nulls_last"
+    desc = "desc"
+    desc_nulls_first = "desc_nulls_first"
+    desc_nulls_last = "desc_nulls_last"
 
 
 def is_optional(type_):
@@ -90,6 +91,20 @@ def create_order_by_expression_name(type_):
         + type_.__name__.capitalize()
         + "OrderBy"
     )
+
+
+def create_all_type_query_name(type_):
+    type_name = type_.__name__.capitalize()
+    if not type_name.endswith("s"):
+        type_name += "s"
+    return f"all_{type_name}"
+
+
+def create_select_column_enum_name(type_):
+    type_name = type_.__name__.capitalize()
+    if not type_name.endswith("s"):
+        type_name += "s"
+    return f"{type_name}SelectColumn"
 
 
 def create_scalar_comparison_expression(type_: type):
@@ -178,11 +193,14 @@ def create_non_scalar_order_by_expression(type_: type):
     return strawberry.input(globals()[expression_name])
 
 
-def create_all_type_query_name(type_):
-    type_name = type_.__name__.capitalize()
-    if not type_name.endswith("s"):
-        type_name += "s"
-    return f"all_{type_name}"
+def create_non_scalar_select_columns_enum(type_: type):
+    enum_name = create_select_column_enum_name(type_)
+    type_hints = t.get_type_hints(type_)
+
+    globals()[enum_name] = enum.Enum(
+        enum_name, {field_name: field_name for field_name in type_hints.keys()}
+    )
+    return strawberry.enum(globals()[enum_name])
 
 
 def create_all_type_query_field(type_: type):
@@ -195,6 +213,9 @@ def create_all_type_query_field(type_: type):
         limit: t.Optional[int] = None,
         offset: t.Optional[int] = None,
         orderBy: t.Optional[create_non_scalar_order_by_expression(type_)] = None,
+        distinctOn: t.Optional[
+            t.List[create_non_scalar_select_columns_enum(type_)]
+        ] = None,
     ) -> t.List[type_]:
         # TODO: actually implement the query
         return [type_(age=10, password="foo")]

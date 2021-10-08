@@ -2,20 +2,24 @@ from __future__ import annotations
 
 import typing as t
 
-import pydantic
 import strawberry
+from sqlmodel import Field, SQLModel
 
 from .filter_generators import create_query_root
 
 
 # define a database model
-class UserModel(pydantic.BaseModel):
+class UserModel(SQLModel, table=True):
+    __tablename__ = "users"
+    id: t.Optional[int] = Field(
+        default=None, primary_key=True, index=True, nullable=False
+    )
     age: int
     password: t.Optional[str]
 
 
 # define a strawberry type
-@strawberry.experimental.pydantic.type(UserModel, fields=["age", "password"])
+@strawberry.experimental.pydantic.type(UserModel, fields=["id", "age", "password"])
 class User:
     pass
 
