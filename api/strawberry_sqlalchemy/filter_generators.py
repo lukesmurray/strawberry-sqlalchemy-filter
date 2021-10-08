@@ -6,7 +6,7 @@ from enum import Enum
 from types import SimpleNamespace
 
 import strawberry
-from strawberry.type import StrawberryOptional
+from strawberry.type import StrawberryContainer
 
 
 class BoolOps(SimpleNamespace):
@@ -207,10 +207,11 @@ def create_non_scalar_comparison_expression(type_: type):
             # TODO: create a way to query the array
 
             # the base type is the underlying type of the field.
-            # we don't care if the field is optional if we're writing a filter
-            # we just want to implement the filter
+            # we don't care if the field is optional or a list we just want
+            # to implement a filter for the underlying type
+            # TODO: not sure if StrawberryContainer is always the right choice
             field_base_type = field_type
-            if isinstance(field_type, StrawberryOptional):
+            if isinstance(field_type, StrawberryContainer):
                 field_base_type = field_type.of_type
 
             # this code handles the case where the field is a single item
@@ -271,6 +272,10 @@ def create_non_scalar_select_columns_enum(type_: type):
 def create_all_type_query_field(type_: type):
     method_name = create_all_type_query_name(type_)
 
+    # TODO: we need to change the return type so that aggregates are
+    # functions without creating infinite loops
+    # this is the next step. Basically the type of all_type_query_implementation
+    # need to also be something of type `all_type_query_implementation`
     def all_type_query_implementation(
         self,
         info,

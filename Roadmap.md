@@ -52,7 +52,7 @@ The schema is really long but it is a good example of where we could go in the l
   - [x] schema generation
   - [ ] sqlalchemy integration
 - [ ] implement nested array queries from the one to the many side of a relationship
-  - [ ] schema generation
+  - [x] schema generation
   - [ ] sqlalchemy integration
 - [ ] implement where clauses for nested array queries
   - [ ] schema generation
