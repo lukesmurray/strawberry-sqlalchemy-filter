@@ -1,3 +1,4 @@
+import collections
 import dataclasses
 import enum
 import typing as t
@@ -5,6 +6,7 @@ from enum import Enum
 from types import SimpleNamespace
 
 import strawberry
+from strawberry.type import StrawberryOptional
 
 
 class BoolOps(SimpleNamespace):
@@ -40,6 +42,7 @@ _CONTAINS_BOOL_OP = {BoolOps.contains, BoolOps.not_contains}
 _SCALAR_BOOL_OP_MAP: dict[type, set[str]] = {
     bool: {BoolOps.eq, BoolOps.neq},
     int: {*_BOOL_OP_COMPARISONS, *_INCLUSION_BOOL_OP},
+    float: {*_BOOL_OP_COMPARISONS, *_INCLUSION_BOOL_OP},
     str: {*_BOOL_OP_COMPARISONS, *_INCLUSION_BOOL_OP, *_CONTAINS_BOOL_OP},
     set: {*_CONTAINS_BOOL_OP},
     list: {*_CONTAINS_BOOL_OP},
@@ -56,9 +59,33 @@ class OrderByEnum(Enum):
     desc_nulls_last = "desc_nulls_last"
 
 
+PRIMITIVES = {int, str, bool, float}
+
+
+def is_sequence_container(type_):
+    """Check if a type is a container. For example t.List[int] is a container,"""
+    # TODO: this is hacky.
+    origin = t.get_origin(type_)
+    return origin is t.List or origin is t.Set
+
+
 def is_optional(type_):
     """Check if a type is optional. For example t.Optional[int] is optional,"""
     return t.get_origin(type_) is t.Union and type(None) in t.get_args(type_)
+
+
+def unwrap_sequence_container(type_):
+    """Return the inside of a container. For example t.List[int]
+    would return int.
+    """
+    if is_sequence_container(type_):
+        if len(t.get_args(type_)) > 1:
+            raise ValueError(
+                "Unable to unwrap fields which may contain multiple types "
+                + f"of scalars: {type_}"
+            )
+        return t.get_args(type_)[0]
+    return type_
 
 
 def unwrap_optional(type_):
@@ -68,11 +95,24 @@ def unwrap_optional(type_):
     if is_optional(type_):
         if len(t.get_args(type_)) > 2:
             raise ValueError(
-                "Unable to filter fields which may contain multiple types "
+                "Unable to unwrap fields which may contain multiple types "
                 + f"of scalars: {type_}"
             )
         return [t_ for t_ in t.get_args(type_) if t_ is not None][0]
     return type_
+
+
+def is_primitive(type_):
+    # TODO: this is hacky. We want to understand if types are primitive or not
+    # but really we just want to know if they are handled by sql as a column
+    # or as a relationship
+    # int is a column
+    # list[int] could be a column (we can assume it is)
+    # list[address] is a relationship
+    while is_optional(type_) or is_sequence_container(type_):
+        type_ = unwrap_optional(type_)
+        type_ = unwrap_sequence_container(type_)
+    return isinstance(type_, collections.Hashable) and type_ in PRIMITIVES
 
 
 def create_comparison_expression_name(type_):
@@ -152,13 +192,38 @@ def create_non_scalar_comparison_expression(type_: type):
     fields = []
     expression_name = create_comparison_expression_name(type_)
     for field_name, field_type in type_hints.items():
-        fields.append(
-            (
-                field_name,
-                t.Optional[create_scalar_comparison_expression(field_type)],
-                dataclasses.field(default=None),
+        if is_primitive(field_type):
+            fields.append(
+                (
+                    field_name,
+                    t.Optional[create_scalar_comparison_expression(field_type)],
+                    dataclasses.field(default=None),
+                )
             )
-        )
+        else:
+            # here we have a nested non scalar type. If the field is a single
+            # item then we just want to be able to query the fields of the item
+            # if the field is an array we need to create a way to query the array
+            # TODO: create a way to query the array
+
+            # the base type is the underlying type of the field.
+            # we don't care if the field is optional if we're writing a filter
+            # we just want to implement the filter
+            field_base_type = field_type
+            if isinstance(field_type, StrawberryOptional):
+                field_base_type = field_type.of_type
+
+            # this code handles the case where the field is a single item
+            fields.append(
+                (
+                    field_name,
+                    t.Optional[
+                        create_non_scalar_comparison_expression(field_base_type)
+                    ],
+                    dataclasses.field(default=None),
+                )
+            )
+
     fields.append(
         ("and_", t.Optional[t.List[expression_name]], dataclasses.field(default=None)),
     )
@@ -218,7 +283,10 @@ def create_all_type_query_field(type_: type):
         ] = None,
     ) -> t.List[type_]:
         # TODO: actually implement the query
-        return [type_(age=10, password="foo")]
+        if type_.__name__ == "User":
+            return [type_(age=10, password="foo")]
+        elif type_.__name__ == "Address":
+            return [type_(street="harman", state="ny", country="usa", zip="11237")]
 
     return (
         method_name,
