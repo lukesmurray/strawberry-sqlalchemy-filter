@@ -1,5 +1,6 @@
 import dataclasses
 import typing as t
+from enum import Enum
 from types import SimpleNamespace
 
 import strawberry
@@ -44,6 +45,16 @@ _SCALAR_BOOL_OP_MAP: dict[type, set[str]] = {
 }
 
 
+@strawberry.enum
+class OrderByEnum(Enum):
+    ASC = "asc"
+    ASC_NULLS_FIRST = "asc_nulls_first"
+    ASC_NULLS_LAST = "asc_nulls_last"
+    DESC = "desc"
+    DESC_NULLS_FIRST = "desc_nulls_first"
+    DESC_NULLS_LAST = "desc_nulls_last"
+
+
 def is_optional(type_):
     """Check if a type is optional. For example t.Optional[int] is optional,"""
     return t.get_origin(type_) is t.Union and type(None) in t.get_args(type_)
@@ -69,6 +80,15 @@ def create_comparison_expression_name(type_):
         "".join(g.__name__.capitalize() for g in generics)
         + type_.__name__.capitalize()
         + "Filter"
+    )
+
+
+def create_order_by_expression_name(type_):
+    generics = t.get_args(type_)
+    return (
+        "".join(g.__name__.capitalize() for g in generics)
+        + type_.__name__.capitalize()
+        + "OrderBy"
     )
 
 
@@ -138,6 +158,26 @@ def create_non_scalar_comparison_expression(type_: type):
     return strawberry.input(globals()[expression_name])
 
 
+def create_non_scalar_order_by_expression(type_: type):
+    type_hints = t.get_type_hints(type_)
+    fields = []
+    expression_name = create_order_by_expression_name(type_)
+    for field_name, field_type in type_hints.items():
+        fields.append(
+            (
+                field_name,
+                t.Optional[OrderByEnum],
+                dataclasses.field(default=None),
+            )
+        )
+    globals()[expression_name] = dataclasses.make_dataclass(
+        expression_name,
+        fields=fields,
+        namespace={"__module__": __name__},
+    )
+    return strawberry.input(globals()[expression_name])
+
+
 def create_all_type_query_name(type_):
     type_name = type_.__name__.capitalize()
     if not type_name.endswith("s"):
@@ -154,6 +194,7 @@ def create_all_type_query_field(type_: type):
         where: t.Optional[create_non_scalar_comparison_expression(type_)] = None,
         limit: t.Optional[int] = None,
         offset: t.Optional[int] = None,
+        orderBy: t.Optional[create_non_scalar_order_by_expression(type_)] = None,
     ) -> t.List[type_]:
         # TODO: actually implement the query
         return [type_(age=10, password="foo")]

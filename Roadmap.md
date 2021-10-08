@@ -43,7 +43,7 @@ The schema is really long but it is a good example of where we could go in the l
   - [x] schema generation
   - [ ] sqlalchemy integration
 - [ ] implement order by clauses
-  - [ ] schema generation
+  - [x] schema generation
   - [ ] sqlalchemy integration
 - [ ] implement distinct clauses
   - [ ] schema generation
