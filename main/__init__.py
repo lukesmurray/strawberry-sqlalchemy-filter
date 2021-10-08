@@ -1,4 +1,4 @@
-from api.example_schema import schema
+from api.strawberry_sqlalchemy.auto_schema import schema
 from fastapi import FastAPI
 from strawberry.asgi import GraphQL
 

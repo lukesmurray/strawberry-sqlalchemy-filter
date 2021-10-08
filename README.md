@@ -41,6 +41,13 @@ poetry run uvicorn main:app --reload
 
 The GraphQL API should now be available at http://localhost:8000/graphql
 
+## Common Commands
+
+- start the application
+  - `poetry run uvicorn main:app --reload`
+- output the schema
+- `poetry run strawberry export-schema main:schema`
+
 ## Example query
 
 ```graphql

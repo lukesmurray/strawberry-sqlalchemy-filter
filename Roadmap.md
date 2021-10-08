@@ -34,16 +34,41 @@ The schema is really long but it is a good example of where we could go in the l
 
 ## Roadmap
 
-- [ ] implement where clauses ([in progress](https://gist.github.com/lukesmurray/4d0f156a7f97dc46c0a98f684794b999))
+- [x] implement automatic schema generation from strawberry types
+- [ ] implement automatic schema generation from sqlalchemy types
+- [ ] implement where clause
+  - [x] schema generation
+  - [ ] sqlalchemy integration
 - [ ] implement limit/offset clauses
+  - [x] schema generation
+  - [ ] sqlalchemy integration
 - [ ] implement order by clauses
+  - [ ] schema generation
+  - [ ] sqlalchemy integration
 - [ ] implement distinct clauses
+  - [ ] schema generation
+  - [ ] sqlalchemy integration
 - [ ] implement nested single item queries from the many to the one side of a relationship
+  - [ ] schema generation
+  - [ ] sqlalchemy integration
 - [ ] implement nested array queries from the one to the many side of a relationship
+  - [ ] schema generation
+  - [ ] sqlalchemy integration
 - [ ] implement where clauses for nested array queries
+  - [ ] schema generation
+  - [ ] sqlalchemy integration
 - [ ] implement limit/offset clauses for nested array queries
+  - [ ] schema generation
+  - [ ] sqlalchemy integration
 - [ ] implement order by clauses for nested array queries
+  - [ ] schema generation
+  - [ ] sqlalchemy integration
 - [ ] implement distinct clauses for nested array queries
+  - [ ] schema generation
+  - [ ] sqlalchemy integration
+- [ ] implement automatic query generation from sqlalchemy models
+  - [ ] schema generation
+  - [ ] sqlalchemy integration
 
 In the future...
 
@@ -78,6 +103,9 @@ In the future...
 4. If there are relationships we can fetch those but it depends on the type of relation. If we are fetching a single item then the item can be accessed directly. If we are fetching multiple items then we would support nested fetches using both 1 and 4
 
 ## Generated Schema
+
+<summary>Expand to see schema
+<details>
 
 ```graphql
 schema {
@@ -1463,3 +1491,6 @@ type subscription_root {
   movies_by_pk(id: Int!): movies
 }
 ```
+
+</details>
+</summary>
