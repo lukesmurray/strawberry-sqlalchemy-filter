@@ -120,15 +120,15 @@ def create_non_scalar_comparison_expression(type_: type):
         fields.append(
             (
                 field_name,
-                create_scalar_comparison_expression(field_type),
+                t.Optional[create_scalar_comparison_expression(field_type)],
                 dataclasses.field(default=None),
             )
         )
     fields.append(
-        ("and_", t.Optional[expression_name], dataclasses.field(default=None)),
+        ("and_", t.Optional[t.List[expression_name]], dataclasses.field(default=None)),
     )
     fields.append(
-        ("or_", t.Optional[expression_name], dataclasses.field(default=None)),
+        ("or_", t.Optional[t.List[expression_name]], dataclasses.field(default=None)),
     )
     globals()[expression_name] = dataclasses.make_dataclass(
         expression_name,
