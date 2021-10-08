@@ -5,7 +5,7 @@ import typing as t
 import strawberry
 from sqlmodel import Field, Relationship, SQLModel
 
-from .filter_generators import create_query_root
+from .filter_generators import create_array_relationship_type, create_query_root
 
 
 class AddressModel(SQLModel, table=True):
@@ -42,10 +42,11 @@ class User:
     AddressModel, fields=["id", "street", "state", "country", "zip"]
 )
 class Address:
-    users: t.List["User"] = None
+    users: t.List[create_array_relationship_type(User)] = strawberry.field(
+        resolver=create_array_relationship_type(User)
+    )
 
 
 Query = create_query_root([User, Address])
 
-# create the schema
 schema = strawberry.Schema(query=Query)

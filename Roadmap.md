@@ -55,16 +55,16 @@ The schema is really long but it is a good example of where we could go in the l
   - [x] schema generation
   - [ ] sqlalchemy integration
 - [ ] implement where clauses for nested array queries
-  - [ ] schema generation
+  - [x] schema generation
   - [ ] sqlalchemy integration
 - [ ] implement limit/offset clauses for nested array queries
-  - [ ] schema generation
+  - [x] schema generation
   - [ ] sqlalchemy integration
 - [ ] implement order by clauses for nested array queries
-  - [ ] schema generation
+  - [x] schema generation
   - [ ] sqlalchemy integration
 - [ ] implement distinct clauses for nested array queries
-  - [ ] schema generation
+  - [x] schema generation
   - [ ] sqlalchemy integration
 - [ ] implement automatic query generation from sqlalchemy models
   - [ ] schema generation
@@ -1494,3 +1494,9 @@ type subscription_root {
 
 </details>
 </summary>
+
+## Known Issues
+
+- [ ] not sure how to determine if a field is a relationship or not when creating comparison expressions. currently use on `is_primitive` hack but this is unreliable.
+- [ ] not sure how to determine if a type is implementable as a column or not. This may matter for treating fields as scalars.
+- [ ] not sure how to get the underlying type from a relationship when creating comparison expresions. Currently check the instance and try to extract.

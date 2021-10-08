@@ -201,11 +201,6 @@ def create_non_scalar_comparison_expression(type_: type):
                 )
             )
         else:
-            # here we have a nested non scalar type. If the field is a single
-            # item then we just want to be able to query the fields of the item
-            # if the field is an array we need to create a way to query the array
-            # TODO: create a way to query the array
-
             # the base type is the underlying type of the field.
             # we don't care if the field is optional or a list we just want
             # to implement a filter for the underlying type
@@ -269,13 +264,7 @@ def create_non_scalar_select_columns_enum(type_: type):
     return strawberry.enum(globals()[enum_name])
 
 
-def create_all_type_query_field(type_: type):
-    method_name = create_all_type_query_name(type_)
-
-    # TODO: we need to change the return type so that aggregates are
-    # functions without creating infinite loops
-    # this is the next step. Basically the type of all_type_query_implementation
-    # need to also be something of type `all_type_query_implementation`
+def create_array_relationship_type(type_: type):
     def all_type_query_implementation(
         self,
         info,
@@ -292,6 +281,14 @@ def create_all_type_query_field(type_: type):
             return [type_(age=10, password="foo")]
         elif type_.__name__ == "Address":
             return [type_(street="harman", state="ny", country="usa", zip="11237")]
+
+    return all_type_query_implementation
+
+
+def create_all_type_query_field(type_: type):
+    method_name = create_all_type_query_name(type_)
+
+    all_type_query_implementation = create_array_relationship_type(type_)
 
     return (
         method_name,
