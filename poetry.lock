@@ -474,6 +474,17 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "sentinel"
+version = "0.3.0"
+description = "Create sentinel objects, akin to None, NotImplemented, Ellipsis"
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.extras]
+varname = ["varname (>=0.1)"]
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -553,7 +564,7 @@ full = ["aiofiles", "graphene", "itsdangerous", "jinja2", "python-multipart", "p
 
 [[package]]
 name = "strawberry-graphql"
-version = "0.77.12"
+version = "0.83.3"
 description = "A library for creating GraphQL APIs"
 category = "main"
 optional = false
@@ -566,7 +577,7 @@ graphql-core = ">=3.1.0,<3.2.0"
 pygments = ">=2.3,<3.0"
 python-dateutil = ">=2.7.0,<3.0.0"
 python-multipart = ">=0.0.5,<0.0.6"
-starlette = {version = ">=0.13.6,<0.17.0", optional = true, markers = "extra == \"asgi\" or extra == \"debug-server\""}
+sentinel = ">=0.3.0,<0.4.0"
 typing_extensions = ">=3.7.4,<4.0.0"
 
 [package.extras]
@@ -699,7 +710,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "75d2863cf2dc928d20cba570d5813fa09283d498d2a6633cbfce0ba998d8c594"
+content-hash = "cf189cfacacf3955b6b255d2fce995ecbad1de3d59abd9ec8b3bebda9ca16ade"
 
 [metadata.files]
 alembic = [
@@ -1081,6 +1092,10 @@ regex = [
     {file = "regex-2021.10.8-cp39-cp39-win_amd64.whl", hash = "sha256:b04e512eb628ea82ed86eb31c0f7fc6842b46bf2601b66b1356a7008327f7700"},
     {file = "regex-2021.10.8.tar.gz", hash = "sha256:26895d7c9bbda5c52b3635ce5991caa90fbb1ddfac9c9ff1c7ce505e2282fb2a"},
 ]
+sentinel = [
+    {file = "sentinel-0.3.0-py3-none-any.whl", hash = "sha256:bd8710dd26752039c668604f6be2aaf741b56f7811c5924a4dcdfd74359244f3"},
+    {file = "sentinel-0.3.0.tar.gz", hash = "sha256:f28143aa4716dbc8f6193f5682176a3c33cd26aaae05d9ecf66c186a9887cc2d"},
+]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
@@ -1130,8 +1145,8 @@ starlette = [
     {file = "starlette-0.14.2.tar.gz", hash = "sha256:7d49f4a27f8742262ef1470608c59ddbc66baf37c148e938c7038e6bc7a998aa"},
 ]
 strawberry-graphql = [
-    {file = "strawberry-graphql-0.77.12.tar.gz", hash = "sha256:1adc770643fa8423345a8c4c7a9956172f49a2e01559981be9e4ead6e80611fe"},
-    {file = "strawberry_graphql-0.77.12-py3-none-any.whl", hash = "sha256:2080d93c1a80139b10ae5248ba2e8878c0182362ad9853424eecdd5aebdf3331"},
+    {file = "strawberry-graphql-0.83.3.tar.gz", hash = "sha256:73e0fe883a4df23721ead26d82abe9363d4c5ee8adc3abefc69dfd1ed9472835"},
+    {file = "strawberry_graphql-0.83.3-py3-none-any.whl", hash = "sha256:eaa66656381ebdbb183418a2003cc5e28664a4e534a56cf53ccc12665c7aaf87"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},

@@ -6,7 +6,7 @@ from enum import Enum
 from types import SimpleNamespace
 
 import strawberry
-from api.strawberry_sqlalchemy.query_generation import create_all_type_query
+from api.strawberry_sqlalchemy.query_generation import create_all_type_resolver
 from strawberry.type import StrawberryContainer
 
 
@@ -65,7 +65,7 @@ PRIMITIVES = {int, str, bool, float}
 
 def is_sequence_container(type_):
     """Check if a type is a container. For example t.List[int] is a container,"""
-    # TODO: this is hacky.
+    # TODO: this is hacky. see is_primitive for why we have it
     origin = t.get_origin(type_)
     return origin is t.List or origin is t.Set
 
@@ -79,6 +79,7 @@ def unwrap_sequence_container(type_):
     """Return the inside of a container. For example t.List[int]
     would return int.
     """
+    # TODO: this is hacky. see is_primitive for why we have it
     if is_sequence_container(type_):
         if len(t.get_args(type_)) > 1:
             raise ValueError(
@@ -266,7 +267,7 @@ def create_non_scalar_select_columns_enum(type_: type):
 
 
 def create_array_relationship_type(type_: type):
-    return create_all_type_query(type_)
+    return create_all_type_resolver(type_)
 
 
 def create_all_type_query_field(type_: type):
