@@ -110,6 +110,94 @@ def do_nested_select(info, type_, query, selected_field, column, parent_model):
     return query
 
 
+def eq_filter(column, value):
+    return column == value
+
+
+def neq_filter(column, value):
+    return column != value
+
+
+def lt_filter(column, value):
+    return column < value
+
+
+def lte_filter(column, value):
+    return column <= value
+
+
+def gt_filter(column, value):
+    return column > value
+
+
+def gte_filter(column, value):
+    return column >= value
+
+
+def contains_filter(column, value):
+    return column.contains(value)
+
+
+# TODO: write more filters
+filter_map = {
+    "eq": eq_filter,
+    "neq": neq_filter,
+    "lt": lt_filter,
+    "lte": lte_filter,
+    "gt": gt_filter,
+    "gte": gte_filter,
+    "contains": contains_filter,
+}
+
+
+def do_filter(info, type_, query, column, filter):
+    from api.strawberry_sqlalchemy.schema_generation import (
+        NonScalarComparison,
+        ScalarComparison,
+    )
+
+    scalar = isinstance(filter, ScalarComparison)
+    non_scalar = isinstance(filter, NonScalarComparison)
+    if scalar:
+        for filter_key in filter.__dict__.keys():
+            value = getattr(filter, filter_key)
+            if value is not None:
+                filter_func = filter_map[filter_key]
+                query = query.where(filter_func(column, value))
+    elif non_scalar:
+        # TODO: implement non scalar filter processing
+        raise NotImplementedError("Non scalar filters are not yet implemented.")
+
+    return query
+
+
+def do_where(info, type_, query, where_clause):
+    from api.strawberry_sqlalchemy.schema_generation import (
+        NonScalarComparison,
+        ScalarComparison,
+    )
+
+    if where_clause is None:
+        return query
+
+    isinstance(where_clause, ScalarComparison)
+    non_scalar = isinstance(where_clause, NonScalarComparison)
+
+    model = get_model_for_type(info, type_)
+    name_map = get_graphql_python_name_map_for_type(info, type_)
+
+    if non_scalar:
+        for name in where_clause.__dict__.keys():
+            filter_ = getattr(where_clause, name)
+            if filter_ is not None:
+                column = (
+                    None if name not in name_map else getattr(model, name_map[name])
+                )
+                query = do_filter(info, type_, query, column, filter_)
+
+    return query
+
+
 def create_all_type_resolver(type_: type):
     """create a resolver for all instances of a type. Supports various filters"""
     from api.strawberry_sqlalchemy.schema_generation import (
@@ -155,6 +243,8 @@ def create_all_type_resolver(type_: type):
         ) = get_selected_scalar_non_scalar_field_columns(info, type_, selected_fields)
 
         query = select(model)
+
+        query = do_where(info, type_, query, where)
 
         if non_scalar_field_columns:
             for field_column in non_scalar_field_columns:

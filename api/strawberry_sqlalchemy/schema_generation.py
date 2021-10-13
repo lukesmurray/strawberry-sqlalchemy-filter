@@ -153,6 +153,18 @@ def create_select_column_enum_name(type_):
     return f"{type_name}SelectColumn"
 
 
+class ComparisonExpression:
+    pass
+
+
+class ScalarComparison(ComparisonExpression):
+    pass
+
+
+class NonScalarComparison(ComparisonExpression):
+    pass
+
+
 def create_scalar_comparison_expression(type_: type):
     type_ = unwrap_optional(type_)
     operations = _SCALAR_BOOL_OP_MAP[t.get_origin(type_) or type_]
@@ -188,6 +200,7 @@ def create_scalar_comparison_expression(type_: type):
         expression_name,
         fields=fields,
         namespace={"__module__": __name__},
+        bases=(ScalarComparison,),
     )
     return strawberry.input(globals()[expression_name])
 
@@ -257,6 +270,7 @@ def create_non_scalar_comparison_expression(type_: type):
         expression_name,
         fields=fields,
         namespace={"__module__": __name__},
+        bases=(NonScalarComparison,),
     )
     return strawberry.input(globals()[expression_name])
 
