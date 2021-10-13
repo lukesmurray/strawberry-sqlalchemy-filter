@@ -9,7 +9,8 @@ import json
 from pathlib import Path
 
 from alembic import op
-from main.sqlmodels import Director, Movie
+from api.strawberry_sqlalchemy.movie_model_example import DirectorModel as Director
+from api.strawberry_sqlalchemy.movie_model_example import MovieModel as Movie
 from sqlalchemy import orm, select
 from sqlalchemy.exc import NoResultFound
 

@@ -6,6 +6,7 @@ from enum import Enum
 from types import SimpleNamespace
 
 import strawberry
+from api.strawberry_sqlalchemy.query_generation import create_all_type_query
 from strawberry.type import StrawberryContainer
 
 
@@ -265,24 +266,7 @@ def create_non_scalar_select_columns_enum(type_: type):
 
 
 def create_array_relationship_type(type_: type):
-    def all_type_query_implementation(
-        self,
-        info,
-        where: t.Optional[create_non_scalar_comparison_expression(type_)] = None,
-        limit: t.Optional[int] = None,
-        offset: t.Optional[int] = None,
-        orderBy: t.Optional[create_non_scalar_order_by_expression(type_)] = None,
-        distinctOn: t.Optional[
-            t.List[create_non_scalar_select_columns_enum(type_)]
-        ] = None,
-    ) -> t.List[type_]:
-        # TODO: actually implement the query
-        if type_.__name__ == "User":
-            return [type_(age=10, password="foo")]
-        elif type_.__name__ == "Address":
-            return [type_(street="harman", state="ny", country="usa", zip="11237")]
-
-    return all_type_query_implementation
+    return create_all_type_query(type_)
 
 
 def create_all_type_query_field(type_: type):
@@ -297,7 +281,26 @@ def create_all_type_query_field(type_: type):
     )
 
 
+def create_generation_context(types: t.List[type]):
+    type_to_model = {type_: type_._pydantic_type for type_ in types}
+    model_to_type = {type_._pydantic_type: type_ for type_ in types}
+    type_to_type_definition = {type_: type_._type_definition for type_ in types}
+    type_definition_to_type = {type_._type_definition: type_ for type_ in types}
+    type_to_mapper = {type_: type_._pydantic_type.__mapper__ for type_ in types}
+    mapper_to_type = {type_._pydantic_type.__mapper__: type_ for type_ in types}
+    context = {
+        "type_to_model": type_to_model,
+        "model_to_type": model_to_type,
+        "type_to_type_definition": type_to_type_definition,
+        "type_definition_to_type": type_definition_to_type,
+        "type_to_mapper": type_to_mapper,
+        "mapper_to_type": mapper_to_type,
+    }
+    return context
+
+
 def create_query_root(types: t.List[type]):
+    create_generation_context(types)
 
     all_type_queries = [create_all_type_query_field(type_) for type_ in types]
 

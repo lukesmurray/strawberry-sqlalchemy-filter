@@ -19,7 +19,10 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata # noqa
 # target_metadata = None # noqa
 
-from main.sqlmodels import Director, Movie  # noqa
+from api.strawberry_sqlalchemy.movie_model_example import (  # noqa
+    DirectorModel,
+    MovieModel,
+)
 
 target_metadata = SQLModel.metadata
 

@@ -5,7 +5,7 @@ import typing as t
 import strawberry
 from sqlmodel import Field, Relationship, SQLModel
 
-from .filter_generators import create_array_relationship_type, create_query_root
+from .schema_generation import create_array_relationship_type, create_query_root
 
 
 class AddressModel(SQLModel, table=True):
