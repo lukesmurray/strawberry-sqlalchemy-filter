@@ -5,7 +5,7 @@ import typing as t
 import strawberry
 from sqlmodel import Field, Relationship, SQLModel
 
-from .schema_generation import create_array_relationship_type, create_query_root
+from .schema_generation import create_array_relationship_resolver, create_query_root
 
 
 class AddressModel(SQLModel, table=True):
@@ -42,8 +42,8 @@ class User:
     AddressModel, fields=["id", "street", "state", "country", "zip"]
 )
 class Address:
-    users: t.List[create_array_relationship_type(User)] = strawberry.field(
-        resolver=create_array_relationship_type(User)
+    users: t.List[create_array_relationship_resolver(User)] = strawberry.field(
+        resolver=create_array_relationship_resolver(User)
     )
 
 

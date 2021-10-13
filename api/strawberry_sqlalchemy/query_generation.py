@@ -95,7 +95,8 @@ def do_nested_select(info, type_, query, selected_field, column, parent_model):
     # one issue with selectinload is it will not work with nested relationships
     # that have compositie primary keys. this shows up on sql server
     # https://docs.sqlalchemy.org/en/14/orm/loading_relationships.html#select-in-loading
-    query = query.options(selectinload(column))
+    subquery = selectinload(column)
+    query = query.options(subquery)
 
     # TODO: this nested select is untested and probably doesn't work we want to
     # use chained loading to specify futher levels
@@ -104,7 +105,7 @@ def do_nested_select(info, type_, query, selected_field, column, parent_model):
         for field_column in non_scalar_field_columns:
             field, column = field_column
             column_type = get_type_for_column(info, column)
-            do_nested_select(info, column_type, query, field, column, model)
+            do_nested_select(info, column_type, subquery, field, column, model)
 
     return query
 

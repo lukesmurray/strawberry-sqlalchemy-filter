@@ -2,7 +2,7 @@ import typing as t
 
 import strawberry
 from api.strawberry_sqlalchemy.schema_generation import (
-    create_array_relationship_type,
+    create_array_relationship_resolver,
     create_generation_context,
     create_query_root,
 )
@@ -37,7 +37,7 @@ class SQLAlchemySession(Extension):
     ],
 )
 class Movie:
-    pass
+    director: strawberry.LazyType["Director", __name__]
 
 
 @strawberry.experimental.pydantic.type(
@@ -46,10 +46,11 @@ class Movie:
 )
 class Director:
     movies: t.List[Movie] = strawberry.field(
-        resolver=create_array_relationship_type(Movie)
+        resolver=create_array_relationship_resolver(Movie)
     )
 
 
+# TODO: would be nice to make this simpler
 auto_types = [Movie, Director]
 auto_schema_context = create_generation_context(auto_types)
 

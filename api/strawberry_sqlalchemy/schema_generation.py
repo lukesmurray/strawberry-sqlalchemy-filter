@@ -118,6 +118,10 @@ def is_primitive(type_):
 
 
 def create_comparison_expression_name(type_):
+    # TODO: this is a hack we rely on the fact that users probably won't pass
+    # lazy types which are wrapped
+    if isinstance(type_, strawberry.LazyType):
+        return f"{type_.type_name}Filter"
     generics = t.get_args(type_)
     return (
         "".join(g.__name__.capitalize() for g in generics)
@@ -211,16 +215,37 @@ def create_non_scalar_comparison_expression(type_: type):
             if isinstance(field_type, StrawberryContainer):
                 field_base_type = field_type.of_type
 
-            # this code handles the case where the field is a single item
-            fields.append(
-                (
-                    field_name,
-                    t.Optional[
-                        create_non_scalar_comparison_expression(field_base_type)
-                    ],
-                    dataclasses.field(default=None),
+            if isinstance(field_base_type, strawberry.LazyType):
+                fields.append(
+                    (
+                        field_name,
+                        t.Optional[
+                            strawberry.LazyType[
+                                # TODO: this is a hack. We cannot resolve the
+                                # type of the nested field or we get a circular
+                                # dependency error. Instead we rely on the fact
+                                # that the type underlying the LazyType will
+                                # be used in a non lazy way elsewhere and
+                                # registed on the module associated with __name__
+                                create_comparison_expression_name(field_type),
+                                __name__,
+                            ]
+                        ],
+                        dataclasses.field(default=None),
+                    )
                 )
-            )
+
+            else:
+                # this code handles the case where the field is a single item
+                fields.append(
+                    (
+                        field_name,
+                        t.Optional[
+                            create_non_scalar_comparison_expression(field_base_type)
+                        ],
+                        dataclasses.field(default=None),
+                    )
+                )
 
     fields.append(
         ("and_", t.Optional[t.List[expression_name]], dataclasses.field(default=None)),
@@ -266,14 +291,14 @@ def create_non_scalar_select_columns_enum(type_: type):
     return strawberry.enum(globals()[enum_name])
 
 
-def create_array_relationship_type(type_: type):
+def create_array_relationship_resolver(type_: type):
     return create_all_type_resolver(type_)
 
 
 def create_all_type_query_field(type_: type):
     method_name = create_all_type_query_name(type_)
 
-    all_type_query_implementation = create_array_relationship_type(type_)
+    all_type_query_implementation = create_array_relationship_resolver(type_)
 
     return (
         method_name,
